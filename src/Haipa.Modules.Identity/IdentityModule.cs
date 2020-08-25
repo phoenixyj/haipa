@@ -11,7 +11,6 @@ using Microsoft.Extensions.Hosting;
 using SimpleInjector;
 using SimpleInjector.Integration.ServiceCollection;
 using Client = Haipa.Modules.Identity.Models.V1.Client;
-using Scope = IdentityServer4.Models.Scope;
 
 namespace Haipa.Modules.Identity
 {
@@ -64,25 +63,26 @@ namespace Haipa.Modules.Identity
                         serviceProvider.GetRequiredService<IDbContextConfigurer<ConfigurationDbContext>>()
                             .Configure(builder);
                 })
+                .AddInMemoryApiScopes(new []
+                {
+                    new ApiScope
+                    {
+                        Name = "identity:clients:write:all",
+                        DisplayName = "Full access to clients"
+                    },
+                    new ApiScope
+                    {
+                        Name = "identity:clients:read:all",
+                        DisplayName = "Read only access to clients"
+                    }
+                })
                 .AddInMemoryApiResources(new List<ApiResource>
                 {
                     new ApiResource("compute_api"),
                     new ApiResource
                     {
                         Name = "identity_api",
-                        Scopes =
-                        {
-                            new Scope
-                            {
-                                Name = "identity:clients:write:all",
-                                DisplayName = "Full access to clients"
-                            },
-                            new Scope
-                            {
-                                Name = "identity:clients:read:all",
-                                DisplayName = "Read only access to clients"
-                            }
-                        }
+                        Scopes = { "identity:clients:write:all", "identity:clients:read:all" }
                     }
                 })
                 //.AddInMemoryCaching()
